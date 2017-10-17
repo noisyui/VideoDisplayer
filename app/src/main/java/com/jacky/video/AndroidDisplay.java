@@ -34,18 +34,14 @@ public class AndroidDisplay extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*屏幕常亮*/
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-		/*无标题*/
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		/*全屏*/
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 
-		/*横屏*/
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         setContentView(R.layout.activity_android_display);
@@ -57,7 +53,6 @@ public class AndroidDisplay extends Activity {
 
             @Override
             public void onClick(View arg0) {
-                // TODO Auto-generated method stub
                 new RecvThread().start();
             }
         });
@@ -65,29 +60,23 @@ public class AndroidDisplay extends Activity {
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                // TODO Auto-generated method stub
-                //操作UI界面
-                if (bitmap != null)
+                if (bitmap != null){
                     imgVDisplay.setImageBitmap(bitmap);
+                }
                 super.handleMessage(msg);
             }
 
         };
     }
 
-    /**
-     * 开启监听线程
-     */
-    class RecvThread extends Thread {
+    private class RecvThread extends Thread {
         private byte[] data = new byte[409600];
         private byte[] byteBuffer = new byte[2048];
-        private int datalength;
+        private int dataLength;
         private int count = 0;
 
         @Override
         public void run() {
-            // TODO Auto-generated method stub
-            // super.run();
             try {
                 srvSocket = new ServerSocket(LOCALPORT);
                 while (true) {
@@ -96,19 +85,18 @@ public class AndroidDisplay extends Activity {
                         InputStream inputStream = socket.getInputStream();
                         count = 0;
                         do {
-                            datalength = inputStream.read(byteBuffer);
-                            if (datalength != -1) {
-                                System.arraycopy(byteBuffer, 0, data, count, datalength);
-                                count += datalength;
+                            dataLength = inputStream.read(byteBuffer);
+                            if (dataLength != -1) {
+                                System.arraycopy(byteBuffer, 0, data, count, dataLength);
+                                count += dataLength;
                             }
-                        } while (datalength != -1);
+                        } while (dataLength != -1);
                         Log.v("AndroidVideo", Integer.toString(count));
 
                         new craetNdisplayImageThread(data, count).start();
 
                         inputStream.close();
                     } catch (Exception e) {
-                        // TODO: handle exception
                         e.printStackTrace();
                     } finally {
                         socket.close();
@@ -116,28 +104,23 @@ public class AndroidDisplay extends Activity {
 
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
 
     }
 
-    class craetNdisplayImageThread extends Thread {
+    private class craetNdisplayImageThread extends Thread {
         private byte[] data;
         private int count;
-        //private Bitmap bitmap;
 
-        public craetNdisplayImageThread(byte[] data, int count) {
-            // TODO Auto-generated constructor stub
+        craetNdisplayImageThread(byte[] data, int count) {
             this.data = data;
             this.count = count;
         }
 
         @Override
         public void run() {
-            // TODO Auto-generated method stub
-            //super.run();
             bitmap = BitmapFactory.decodeByteArray(data, 0, count);
             Message msg = new Message();
             mHandler.sendMessage(msg);
@@ -150,5 +133,4 @@ public class AndroidDisplay extends Activity {
         getMenuInflater().inflate(R.menu.activity_android_display, menu);
         return true;
     }
-
 }
