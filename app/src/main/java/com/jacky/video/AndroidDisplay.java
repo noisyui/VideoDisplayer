@@ -23,7 +23,7 @@ import java.net.Socket;
 
 public class AndroidDisplay extends Activity {
 
-    private final int LOCALPORT = 18000;
+    private final int LOCALPORT = 8888;
     private Button btnDisplay;
     private ImageView imgVDisplay;
     private ServerSocket srvSocket = null;
@@ -46,8 +46,8 @@ public class AndroidDisplay extends Activity {
 
         setContentView(R.layout.activity_android_display);
 
-        btnDisplay = (Button) findViewById(R.id.display);
-        imgVDisplay = (ImageView) findViewById(R.id.imageView_Pic);
+        btnDisplay = findViewById(R.id.display);
+        imgVDisplay = findViewById(R.id.imageView_Pic);
 
         btnDisplay.setOnClickListener(new OnClickListener() {
 
@@ -80,8 +80,8 @@ public class AndroidDisplay extends Activity {
             try {
                 srvSocket = new ServerSocket(LOCALPORT);
                 while (true) {
-                    Socket socket = srvSocket.accept();
-                    try {
+                    new DisplayImageThread(data, count).start();
+                    try (Socket socket = srvSocket.accept()) {
                         InputStream inputStream = socket.getInputStream();
                         count = 0;
                         do {
@@ -93,15 +93,10 @@ public class AndroidDisplay extends Activity {
                         } while (dataLength != -1);
                         Log.v("AndroidVideo", Integer.toString(count));
 
-                        new craetNdisplayImageThread(data, count).start();
-
                         inputStream.close();
                     } catch (Exception e) {
                         e.printStackTrace();
-                    } finally {
-                        socket.close();
                     }
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -110,11 +105,11 @@ public class AndroidDisplay extends Activity {
 
     }
 
-    private class craetNdisplayImageThread extends Thread {
+    private class DisplayImageThread extends Thread {
         private byte[] data;
         private int count;
 
-        craetNdisplayImageThread(byte[] data, int count) {
+        DisplayImageThread(byte[] data, int count) {
             this.data = data;
             this.count = count;
         }
