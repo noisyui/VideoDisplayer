@@ -1,5 +1,6 @@
 package com.jacky.video;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -31,6 +32,7 @@ public class AndroidDisplay extends Activity {
 
     private Bitmap bitmap = null;
 
+    @SuppressLint("HandlerLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
